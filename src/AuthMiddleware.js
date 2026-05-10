@@ -1,8 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 // AuthMiddleware — Configurable identity resolution + secret guard
 // ─────────────────────────────────────────────────────────────
-// Extracted from prism-service AuthMiddleware.
-//
 // Two composable middlewares:
 //   1. createAuthMiddleware() — resolves project/username/IP from headers
 //   2. createSecretGuard(secret) — rejects requests without a valid secret

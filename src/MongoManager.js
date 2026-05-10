@@ -1,10 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 // MongoManager — MongoDB connection pool + index creation + health
 // ─────────────────────────────────────────────────────────────
-// Merges the patterns from:
-//   - prism-service MongoWrapper (named multi-client map)
-//   - utilities-library/mongo (simple connect/getDB singleton)
-//
 // Supports both single-database and multi-database use cases.
 // ─────────────────────────────────────────────────────────────
 

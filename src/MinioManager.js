@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────
 // MinioManager — S3-compatible object storage wrapper
 // ─────────────────────────────────────────────────────────────
-// Extracted from prism-service MinioWrapper with additions:
+// Features:
 //   - Health check
 //   - Presigned URL generation
-//   - Configurable public policy (opt-in, not forced)
+//   - Configurable public policy (opt-in)
 //   - Graceful unavailability (isAvailable guard)
 // ─────────────────────────────────────────────────────────────
 

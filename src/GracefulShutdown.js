@@ -1,8 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 // GracefulShutdown — Signal handlers + cleanup registry
 // ─────────────────────────────────────────────────────────────
-// Extracted from prism-service CleanupRegistry.js
-// ─────────────────────────────────────────────────────────────
 
 /** @type {Set<() => Promise<void>>} */
 const cleanupFunctions = new Set();

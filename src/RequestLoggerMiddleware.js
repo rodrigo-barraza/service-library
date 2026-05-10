@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // RequestLoggerMiddleware — Console request logger with identity
 // ─────────────────────────────────────────────────────────────
-// Extends utilities-library's createRequestLoggerMiddleware with:
+// Features:
 //   - Project/username/IP identity tagging
 //   - SSE/audio stream skip (those are logged by route handlers)
 //   - Request + response size reporting
