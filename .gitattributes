@@ -1,0 +1,6 @@
+# Auto-detect text files and normalise line endings
+* text=auto
+
+# Force LF line endings for all JS/JSON
+*.js text eol=lf
+*.json text eol=lf

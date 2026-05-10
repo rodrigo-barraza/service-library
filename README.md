@@ -1,0 +1,143 @@
+# @rodrigo-barraza/service-library
+
+**Service Chassis Pattern** — shared Express microservice bootstrap for the Sun ecosystem.
+
+Eliminates ~300 lines of duplicated boilerplate per service by extracting the common boot sequence (Express + CORS + body parsing + auth + request logging + MongoDB + MinIO + health + graceful shutdown + cron) into a single `createService()` factory.
+
+## Quick Start
+
+```js
+import { createService } from "@rodrigo-barraza/service-library";
+import sensorRoutes from "./routes/SensorRoutes.js";
+import readingRoutes from "./routes/ReadingRoutes.js";
+
+const { app, db } = await createService({
+  name: "gauge-service",
+  port: 5595,
+  mongo: {
+    uri: "mongodb://localhost:27017/gauge",
+    indexes: [
+      {
+        collection: "sensors",
+        indexes: [{ key: { type: 1 } }, { key: { name: 1 }, options: { unique: true } }],
+      },
+    ],
+  },
+  routes: [
+    { path: "/sensors", router: sensorRoutes },
+    { path: "/readings", router: readingRoutes },
+  ],
+});
+```
+
+## What `createService()` Does
+
+1. Creates Express app with `express.json()` + CORS
+2. Mounts optional secret guard (`x-api-secret`)
+3. Mounts identity resolution middleware (project, username, IP)
+4. Mounts request logger middleware with timing + sizes
+5. Connects MongoDB (optional) with index creation
+6. Connects MinIO (optional) with bucket auto-creation
+7. Calls `beforeRoutes` hook (optional)
+8. Mounts user-provided routes
+9. Calls `afterRoutes` hook (optional)
+10. Adds `/health` endpoint (aggregated from all subsystems)
+11. Adds `/` root endpoint with service info
+12. Adds error handler middleware
+13. Starts cron jobs (optional)
+14. Installs graceful shutdown handlers (SIGTERM/SIGINT)
+15. Starts listening on the configured port
+
+## Modules
+
+### `createService(config)`
+
+The main factory. See [createService.js](src/createService.js) for full `ServiceConfig` typedef.
+
+### `MongoManager`
+
+```js
+import { MongoManager, connectDB, getDB, getCollection } from "@rodrigo-barraza/service-library";
+
+const db = await connectDB("mongodb://localhost:27017/mydb");
+const col = getCollection("users");
+```
+
+### `MinioManager`
+
+```js
+import { MinioManager } from "@rodrigo-barraza/service-library";
+
+await MinioManager.init({ endpoint: "http://nas:9000", accessKey: "...", secretKey: "...", bucket: "uploads" });
+await MinioManager.upload("path/file.png", buffer, "image/png");
+const url = MinioManager.getPublicUrl("path/file.png");
+```
+
+### `AuthMiddleware`
+
+```js
+import { createAuthMiddleware, createSecretGuard } from "@rodrigo-barraza/service-library";
+
+app.use(createSecretGuard("my-secret", { bypassPaths: ["/health"] }));
+app.use(createAuthMiddleware({ defaultProject: "myapp" }));
+```
+
+### `HealthAggregator`
+
+```js
+import { HealthAggregator } from "@rodrigo-barraza/service-library";
+
+const health = new HealthAggregator("my-service", 3000);
+health.register("redis", async () => ({ status: "ok" }));
+app.get("/health", health.handler());
+```
+
+### `GracefulShutdown`
+
+```js
+import { registerCleanup, installShutdownHandlers } from "@rodrigo-barraza/service-library";
+
+registerCleanup(async () => { await db.close(); });
+installShutdownHandlers({ logger });
+```
+
+### `CronScheduler`
+
+```js
+import { CronScheduler } from "@rodrigo-barraza/service-library";
+
+const scheduler = new CronScheduler(logger);
+scheduler.schedule("cleanup", 3600000, cleanupFn, { immediate: true });
+```
+
+## Individual Imports
+
+Each module can be imported directly:
+
+```js
+import { MongoManager } from "@rodrigo-barraza/service-library/mongo";
+import { MinioManager } from "@rodrigo-barraza/service-library/minio";
+import { createAuthMiddleware } from "@rodrigo-barraza/service-library/auth";
+import { HealthAggregator } from "@rodrigo-barraza/service-library/health";
+import { registerCleanup } from "@rodrigo-barraza/service-library/shutdown";
+import { CronScheduler } from "@rodrigo-barraza/service-library/cron";
+```
+
+## Before/After Hooks
+
+For service-specific middleware that needs to run before or after routes:
+
+```js
+await createService({
+  name: "prism-service",
+  port: 7777,
+  beforeRoutes: (app, { db, logger }) => {
+    // Custom middleware before routes
+    app.use(myCustomMiddleware);
+  },
+  afterRoutes: (app, { db, logger }) => {
+    // WebSocket setup, etc.
+  },
+  routes: [...],
+});
+```
