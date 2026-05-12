@@ -59,7 +59,7 @@ import { MongoManager } from "./MongoManager.js";
  * @property {string} [auth.defaultProject="default"]
  * @property {string} [auth.defaultUsername="anonymous"]
  * @property {Array<{ path: string, router: import("express").Router }>} [routes] - Route mounts
- * @property {string} [cors="*"] - CORS origin
+ * @property {string|string[]} [cors="*"] - CORS origin(s). "*" reflects request origin (open), array = whitelist + localhost + LAN
  * @property {string} [bodyLimit="10mb"] - JSON body size limit
  * @property {object} [logger] - Logger instance (auto-created if omitted)
  * @property {Function} [beforeRoutes] - Callback to add middleware before routes: (app, ctx) => void
@@ -91,8 +91,31 @@ export async function createService(config) {
   const scheduler = new CronScheduler(logger);
 
   // ── CORS ─────────────────────────────────────────────────
+  // RFC 1918 private-network IP pattern — allows any LAN client
+  const PRIVATE_IP_RE =
+    /^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/;
+
   app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", corsOrigin);
+    const origin = req.headers.origin;
+
+    if (corsOrigin === "*") {
+      // Open mode — reflect the request origin (supports credentials
+      // unlike a literal "*", while remaining effectively open)
+      res.header("Access-Control-Allow-Origin", origin || "*");
+    } else if (Array.isArray(corsOrigin)) {
+      // Whitelist mode — allow listed origins + localhost + private IPs
+      const allowed =
+        !origin ||
+        corsOrigin.includes(origin) ||
+        /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+        PRIVATE_IP_RE.test(origin);
+      res.header("Access-Control-Allow-Origin", allowed ? origin : "");
+    } else {
+      // Single origin string — use as-is
+      res.header("Access-Control-Allow-Origin", corsOrigin);
+    }
+
+    res.header("Access-Control-Allow-Credentials", "true");
     res.header(
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization, x-api-secret, x-admin-secret, x-project, x-username, x-workspace-id, x-workspace-root, x-agent",
