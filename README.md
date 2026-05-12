@@ -1,6 +1,6 @@
 # @rodrigo-barraza/service-library
 
-**Service Chassis Pattern** — shared Express microservice bootstrap for the Sun ecosystem.
+**Service Chassis Pattern** — shared Express microservice bootstrap for the service ecosystem.
 
 Eliminates ~300 lines of duplicated boilerplate per service by extracting the common boot sequence (Express + CORS + body parsing + auth + request logging + MongoDB + MinIO + health + graceful shutdown + cron) into a single `createService()` factory.
 
