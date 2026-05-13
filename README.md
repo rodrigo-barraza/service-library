@@ -141,3 +141,15 @@ await createService({
   routes: [...],
 });
 ```
+
+## Scripts
+
+```bash
+npm run lint            # Run ESLint
+npm run format          # Format with Prettier
+npm run format:check    # Check formatting
+npm test                # Run tests (Vitest)
+npm run test:watch      # Run tests in watch mode
+npm run prepublishOnly  # Run tests before publishing
+```
+
