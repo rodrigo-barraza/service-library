@@ -2,26 +2,32 @@
 // GracefulShutdown — Signal handlers + cleanup registry
 // ─────────────────────────────────────────────────────────────
 
-/** @type {Set<() => Promise<void>>} */
-const cleanupFunctions = new Set();
+type CleanupFn = () => Promise<void> | void;
+
+const cleanupFunctions = new Set<CleanupFn>();
 let isRunning = false;
 
 /**
  * Register a cleanup function to run during graceful shutdown.
- * @param {() => Promise<void>} cleanupFn
- * @returns {() => void} Unregister function
+ * Returns an unregister function.
  */
-export function registerCleanup(cleanupFn) {
+export function registerCleanup(cleanupFn: CleanupFn): () => void {
   cleanupFunctions.add(cleanupFn);
   return () => cleanupFunctions.delete(cleanupFn);
 }
 
+export interface LoggerLike {
+  info?(msg: string): void;
+  warn?(msg: string): void;
+  error?(msg: string): void;
+  success?(msg: string): void;
+  log?(msg: string): void;
+}
+
 /**
  * Run all registered cleanup functions in parallel.
- * @param {object} [logger] - Logger instance
- * @returns {Promise<void>}
  */
-export async function runCleanupFunctions(logger) {
+export async function runCleanupFunctions(logger?: LoggerLike): Promise<void> {
   if (isRunning) return;
   isRunning = true;
   const log = logger || console;
@@ -44,32 +50,34 @@ export async function runCleanupFunctions(logger) {
       failures++;
       if (log.error)
         log.error(
-          `Cleanup failed: ${result.reason?.message || result.reason}`,
+          `Cleanup failed: ${(result.reason as Error)?.message || result.reason}`,
         );
     }
   }
 
   if (failures > 0 && log.warn) {
     log.warn(`${failures}/${count} cleanup function(s) failed`);
-  } else if (log.success) {
-    log.success(`All ${count} cleanup function(s) completed`);
+  } else if ((log as LoggerLike).success) {
+    (log as LoggerLike).success!(`All ${count} cleanup function(s) completed`);
   }
 
   isRunning = false;
 }
 
+export interface ShutdownOptions {
+  logger?: LoggerLike;
+  timeoutMs?: number;
+}
+
 /**
  * Install process signal handlers (SIGTERM, SIGINT).
- * @param {object} [options]
- * @param {object} [options.logger]
- * @param {number} [options.timeoutMs=5000]
  */
-export function installShutdownHandlers(options = {}) {
+export function installShutdownHandlers(options: ShutdownOptions = {}): void {
   const logger = options.logger || console;
   const timeoutMs = options.timeoutMs || 5000;
   let shuttingDown = false;
 
-  const handleShutdown = async (signal) => {
+  const handleShutdown = async (signal: string) => {
     if (shuttingDown) return;
     shuttingDown = true;
 
@@ -88,7 +96,7 @@ export function installShutdownHandlers(options = {}) {
       await runCleanupFunctions(logger);
     } catch (error) {
       if (logger.error)
-        logger.error(`Fatal cleanup error: ${error.message}`);
+        logger.error(`Fatal cleanup error: ${(error as Error).message}`);
     }
 
     clearTimeout(hardTimeout);
@@ -101,8 +109,7 @@ export function installShutdownHandlers(options = {}) {
 
 /**
  * Current count of registered cleanup functions.
- * @returns {number}
  */
-export function cleanupCount() {
+export function cleanupCount(): number {
   return cleanupFunctions.size;
 }

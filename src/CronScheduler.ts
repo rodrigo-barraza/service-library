@@ -2,46 +2,39 @@
 // CronScheduler — Named interval-based job scheduling
 // ─────────────────────────────────────────────────────────────
 
-/**
- * @typedef {Object} Job
- * @property {string} name
- * @property {number} intervalMs
- * @property {Function} fn
- * @property {NodeJS.Timeout|null} timer
- * @property {Date|null} lastRun
- * @property {string|null} lastError
- * @property {number} runCount
- */
+import type { LoggerLike } from "./GracefulShutdown.ts";
 
-class CronScheduler {
-  /** @type {Map<string, Job>} */
-  #jobs = new Map();
-  #logger;
+interface Job {
+  name: string;
+  intervalMs: number;
+  fn: () => Promise<void> | void;
+  timer: ReturnType<typeof setInterval> | null;
+  lastRun: Date | null;
+  lastError: string | null;
+  runCount: number;
+}
 
-  /**
-   * @param {object} [logger] - Logger instance
-   */
-  constructor(logger) {
+export interface ScheduleOptions {
+  immediate?: boolean;
+}
+
+export class CronScheduler {
+  #jobs = new Map<string, Job>();
+  #logger: LoggerLike;
+
+  constructor(logger?: LoggerLike) {
     this.#logger = logger || console;
   }
 
   /**
    * Register and start a recurring job.
-   *
-   * @param {string} name - Job name
-   * @param {number} intervalMs - Interval in milliseconds
-   * @param {Function} fn - Async function to execute
-   * @param {object} [options]
-   * @param {boolean} [options.immediate=false] - Run immediately
-   * @returns {this}
    */
-  schedule(name, intervalMs, fn, options = {}) {
+  schedule(name: string, intervalMs: number, fn: () => Promise<void> | void, options: ScheduleOptions = {}): this {
     if (this.#jobs.has(name)) {
       this.cancel(name);
     }
 
-    /** @type {Job} */
-    const job = {
+    const job: Job = {
       name,
       intervalMs,
       fn,
@@ -58,9 +51,9 @@ class CronScheduler {
         job.lastError = null;
         job.runCount++;
       } catch (error) {
-        job.lastError = error.message;
+        job.lastError = (error as Error).message;
         if (this.#logger.error) {
-          this.#logger.error(`[Cron] ${name} failed: ${error.message}`);
+          this.#logger.error(`[Cron] ${name} failed: ${(error as Error).message}`);
         }
       }
     };
@@ -85,9 +78,8 @@ class CronScheduler {
 
   /**
    * Cancel a scheduled job.
-   * @param {string} name
    */
-  cancel(name) {
+  cancel(name: string): void {
     const job = this.#jobs.get(name);
     if (job?.timer) {
       clearInterval(job.timer);
@@ -98,7 +90,7 @@ class CronScheduler {
   /**
    * Cancel all scheduled jobs.
    */
-  cancelAll() {
+  cancelAll(): void {
     for (const [name] of this.#jobs) {
       this.cancel(name);
     }
@@ -106,10 +98,9 @@ class CronScheduler {
 
   /**
    * Get health status for all jobs.
-   * @returns {object}
    */
-  getHealth() {
-    const jobs = {};
+  getHealth(): Record<string, unknown> {
+    const jobs: Record<string, unknown> = {};
     for (const [name, job] of this.#jobs) {
       jobs[name] = {
         intervalMs: job.intervalMs,
@@ -121,5 +112,3 @@ class CronScheduler {
     return jobs;
   }
 }
-
-export { CronScheduler };

@@ -2,48 +2,47 @@
 // HealthAggregator — Unified /health endpoint
 // ─────────────────────────────────────────────────────────────
 
-class HealthAggregator {
-  #serviceName;
-  #port;
-  #checks = [];
+import type { Request, Response } from "express";
+
+interface HealthCheck {
+  name: string;
+  check: () => Promise<{ status: string; [key: string]: unknown }>;
+}
+
+export class HealthAggregator {
+  #serviceName: string;
+  #port: number;
+  #checks: HealthCheck[] = [];
   #startTime = Date.now();
 
-  /**
-   * @param {string} serviceName
-   * @param {number} port
-   */
-  constructor(serviceName, port) {
+  constructor(serviceName: string, port: number) {
     this.#serviceName = serviceName;
     this.#port = port;
   }
 
   /**
    * Register a named health check.
-   * @param {string} name
-   * @param {() => Promise<{ status: string }>} checkFn
-   * @returns {this}
    */
-  register(name, checkFn) {
+  register(name: string, checkFn: () => Promise<{ status: string; [key: string]: unknown }>): this {
     this.#checks.push({ name, check: checkFn });
     return this;
   }
 
   /**
    * Run all checks and return aggregated health.
-   * @returns {Promise<object>}
    */
-  async getHealth() {
-    const results = {};
+  async getHealth(): Promise<Record<string, unknown>> {
+    const results: Record<string, unknown> = {};
     let overallStatus = "ok";
 
     for (const { name, check } of this.#checks) {
       try {
         results[name] = await check();
-        if (results[name].status !== "ok") {
+        if ((results[name] as { status: string }).status !== "ok") {
           overallStatus = "degraded";
         }
       } catch (error) {
-        results[name] = { status: "error", error: error.message };
+        results[name] = { status: "error", error: (error as Error).message };
         overallStatus = "degraded";
       }
     }
@@ -59,15 +58,12 @@ class HealthAggregator {
 
   /**
    * Express route handler for /health.
-   * @returns {Function}
    */
-  handler() {
-    return async (_req, res) => {
+  handler(): (req: Request, res: Response) => Promise<void> {
+    return async (_req: Request, res: Response) => {
       const health = await this.getHealth();
       const statusCode = health.status === "ok" ? 200 : 503;
       res.status(statusCode).json(health);
     };
   }
 }
-
-export { HealthAggregator };

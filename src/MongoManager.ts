@@ -1,32 +1,24 @@
 // ─────────────────────────────────────────────────────────────
 // MongoManager — MongoDB connection pool + index creation + health
 // ─────────────────────────────────────────────────────────────
-// Supports both single-database and multi-database use cases.
-// ─────────────────────────────────────────────────────────────
 
-import { MongoClient } from "mongodb";
+import { MongoClient, Db, Collection } from "mongodb";
+import type { LoggerLike } from "./GracefulShutdown.ts";
 
-/** @type {Map<string, MongoClient>} Named client connections */
-const clients = new Map();
+const clients = new Map<string, MongoClient>();
+const databases = new Map<string, Db>();
+let defaultName: string | null = null;
 
-/** @type {Map<string, import("mongodb").Db>} Named database instances */
-const databases = new Map();
-
-/** @type {string|null} Default connection name (set by first connect) */
-let defaultName = null;
+export interface ConnectDBOptions {
+  name?: string;
+  dbName?: string;
+  logger?: LoggerLike;
+}
 
 /**
  * Connect to MongoDB and return the database instance.
- * If a name is not provided, the connection is stored as the default.
- *
- * @param {string} uri - MongoDB connection string
- * @param {object} [options]
- * @param {string} [options.name] - Connection name (defaults to dbName)
- * @param {string} [options.dbName] - Database name (parsed from URI if omitted)
- * @param {object} [options.logger] - Logger instance with info/success/error methods
- * @returns {Promise<import("mongodb").Db>}
  */
-async function connectDB(uri, options = {}) {
+async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<Db> {
   const logger = options.logger || console;
   const client = new MongoClient(uri);
   await client.connect();
@@ -40,10 +32,10 @@ async function connectDB(uri, options = {}) {
 
   if (!defaultName) defaultName = name;
 
-  if (logger.success) {
-    logger.success(`MongoDB connected: ${name}`);
+  if ((logger as LoggerLike).success) {
+    (logger as LoggerLike).success!(`MongoDB connected: ${name}`);
   } else {
-    logger.log(`📡 MongoDB connected: ${name}`);
+    console.log(`📡 MongoDB connected: ${name}`);
   }
 
   return db;
@@ -51,14 +43,10 @@ async function connectDB(uri, options = {}) {
 
 /**
  * Get the database instance for a named connection.
- * Falls back to the default connection if no name is provided.
- *
- * @param {string} [name] - Connection name
- * @returns {import("mongodb").Db}
  */
-function getDB(name) {
+function getDB(name?: string): Db {
   const key = name || defaultName;
-  const db = databases.get(key);
+  const db = key ? databases.get(key) : undefined;
   if (!db)
     throw new Error(
       `Database not connected${key ? `: ${key}` : ""} — call connectDB() first`,
@@ -68,37 +56,31 @@ function getDB(name) {
 
 /**
  * Get a collection from a named connection.
- *
- * @param {string} collectionName - Collection name
- * @param {string} [dbName] - Connection/database name (uses default if omitted)
- * @returns {import("mongodb").Collection}
  */
-function getCollection(collectionName, dbName) {
+function getCollection(collectionName: string, dbName?: string): Collection {
   return getDB(dbName).collection(collectionName);
+}
+
+export interface IndexSpec {
+  key: Record<string, unknown>;
+  options?: Record<string, unknown>;
 }
 
 /**
  * Create indexes on a collection, idempotently.
- *
- * @param {string} collectionName - Collection name
- * @param {Array<{ key: object, options?: object }>} indexes - Index specifications
- * @param {string} [dbName] - Connection name
- * @returns {Promise<void>}
  */
-async function createIndexes(collectionName, indexes, dbName) {
+async function createIndexes(collectionName: string, indexes: IndexSpec[], dbName?: string): Promise<void> {
   const col = getCollection(collectionName, dbName);
   for (const { key, options } of indexes) {
-    await col.createIndex(key, options || {});
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await col.createIndex(key as any, options || {});
   }
 }
 
 /**
  * Close a named connection (or all if no name given).
- *
- * @param {string} [name] - Connection name to close (all if omitted)
- * @returns {Promise<void>}
  */
-async function disconnectDB(name) {
+async function disconnectDB(name?: string): Promise<void> {
   if (name) {
     const client = clients.get(name);
     if (client) {
@@ -119,34 +101,28 @@ async function disconnectDB(name) {
 
 /**
  * Get health status for a named connection (or default).
- *
- * @param {string} [name] - Connection name
- * @returns {Promise<{ status: string, dbName?: string, error?: string }>}
  */
-async function healthCheck(name) {
+async function healthCheck(name?: string): Promise<{ status: string; dbName?: string; error?: string }> {
   try {
     const db = getDB(name);
     await db.command({ ping: 1 });
     return { status: "ok", dbName: db.databaseName };
   } catch (error) {
-    return { status: "error", error: error.message };
+    return { status: "error", error: (error as Error).message };
   }
 }
 
 /**
  * Set a mock database instance for testing.
- *
- * @param {import("mongodb").Db} mockDb - Mock database
- * @param {string} [name="test"] - Connection name
  */
-function setDBForTesting(mockDb, name = "test") {
+function setDBForTesting(mockDb: Db, name = "test"): void {
   databases.set(name, mockDb);
   if (!defaultName) defaultName = name;
 }
 
 // ── Namespaced export ────────────────────────────────────────
 
-const MongoManager = {
+export const MongoManager = {
   connect: connectDB,
   getDB,
   getCollection,
@@ -157,7 +133,6 @@ const MongoManager = {
 };
 
 export {
-  MongoManager,
   connectDB,
   getDB,
   getCollection,
