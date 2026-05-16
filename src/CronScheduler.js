@@ -57,10 +57,10 @@ class CronScheduler {
         job.lastRun = new Date();
         job.lastError = null;
         job.runCount++;
-      } catch (err) {
-        job.lastError = err.message;
+      } catch (error) {
+        job.lastError = error.message;
         if (this.#logger.error) {
-          this.#logger.error(`[Cron] ${name} failed: ${err.message}`);
+          this.#logger.error(`[Cron] ${name} failed: ${error.message}`);
         }
       }
     };

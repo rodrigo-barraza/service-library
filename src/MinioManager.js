@@ -85,11 +85,7 @@ const MinioManager = {
         );
       }
     } catch (error) {
-      if (log.error) {
-        log.error(`MinIO connection failed: ${error.message}`);
-      } else {
-        console.error(`MinIO connection failed: ${error.message}`);
-      }
+      log.error(`MinIO connection failed: ${error.message}`);
       _client = null;
       _bucketName = null;
       _endpointUrl = null;
@@ -210,8 +206,8 @@ const MinioManager = {
     try {
       await _client.bucketExists(_bucketName);
       return { status: "ok", bucket: _bucketName };
-    } catch (err) {
-      return { status: "error", error: err.message };
+    } catch (error) {
+      return { status: "error", error: error.message };
     }
   },
 

@@ -128,8 +128,8 @@ async function healthCheck(name) {
     const db = getDB(name);
     await db.command({ ping: 1 });
     return { status: "ok", dbName: db.databaseName };
-  } catch (err) {
-    return { status: "error", error: err.message };
+  } catch (error) {
+    return { status: "error", error: error.message };
   }
 }
 

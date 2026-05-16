@@ -176,9 +176,9 @@ export async function createService(config) {
   }
 
   // ── Pre-route hook ───────────────────────────────────────
-  const ctx = { app, db, logger, health, scheduler };
+  const serviceContext = { app, db, logger, health, scheduler };
   if (config.beforeRoutes) {
-    await config.beforeRoutes(app, ctx);
+    await config.beforeRoutes(app, serviceContext);
   }
 
   // ── Mount routes ─────────────────────────────────────────
@@ -190,7 +190,7 @@ export async function createService(config) {
 
   // ── Post-route hook ──────────────────────────────────────
   if (config.afterRoutes) {
-    await config.afterRoutes(app, ctx);
+    await config.afterRoutes(app, serviceContext);
   }
 
   // ── Health endpoint ──────────────────────────────────────

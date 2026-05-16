@@ -86,9 +86,9 @@ export function installShutdownHandlers(options = {}) {
 
     try {
       await runCleanupFunctions(logger);
-    } catch (err) {
+    } catch (error) {
       if (logger.error)
-        logger.error(`Fatal cleanup error: ${err.message}`);
+        logger.error(`Fatal cleanup error: ${error.message}`);
     }
 
     clearTimeout(hardTimeout);

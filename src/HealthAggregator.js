@@ -42,8 +42,8 @@ class HealthAggregator {
         if (results[name].status !== "ok") {
           overallStatus = "degraded";
         }
-      } catch (err) {
-        results[name] = { status: "error", error: err.message };
+      } catch (error) {
+        results[name] = { status: "error", error: error.message };
         overallStatus = "degraded";
       }
     }
