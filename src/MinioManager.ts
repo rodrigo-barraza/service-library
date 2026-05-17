@@ -40,7 +40,8 @@ export const MinioManager = {
     const log = logger || console;
 
     try {
-      // @ts-expect-error — minio is lazily imported; consumers must install it
+      // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+      // @ts-ignore — minio is lazily imported; consumers must install it
       const { Client } = await import("minio");
 
       const url = new URL(endpoint);
