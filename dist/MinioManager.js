@@ -125,10 +125,10 @@ export const MinioManager = {
         return new Promise((resolve, reject) => {
             const items = [];
             const stream = _client.listObjectsV2(_bucketName, prefix, true);
-            stream.on("data", (obj) => items.push({
-                name: obj.name,
-                size: obj.size,
-                lastModified: obj.lastModified,
+            stream.on("data", (object) => items.push({
+                name: object.name,
+                size: object.size,
+                lastModified: object.lastModified,
             }));
             stream.on("end", () => resolve(items));
             stream.on("error", reject);

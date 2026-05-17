@@ -5,11 +5,11 @@ type CleanupFn = () => Promise<void> | void;
  */
 export declare function registerCleanup(cleanupFn: CleanupFn): () => void;
 export interface LoggerLike {
-    info?(msg: string): void;
-    warn?(msg: string): void;
-    error?(msg: string): void;
-    success?(msg: string): void;
-    log?(msg: string): void;
+    info?(message: string): void;
+    warn?(message: string): void;
+    error?(message: string): void;
+    success?(message: string): void;
+    log?(message: string): void;
 }
 /**
  * Run all registered cleanup functions in parallel.

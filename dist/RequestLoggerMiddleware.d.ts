@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 interface ReqLoggerLike {
     request?(...args: unknown[]): void;
-    info?(msg: string): void;
+    info?(message: string): void;
 }
 export interface RequestLoggerOptions {
     skipSSE?: boolean;

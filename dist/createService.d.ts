@@ -40,8 +40,8 @@ export interface ServiceConfig {
     cors?: string | string[];
     bodyLimit?: string;
     logger?: Logger;
-    beforeRoutes?: (app: Express, ctx: ServiceContext) => void | Promise<void>;
-    afterRoutes?: (app: Express, ctx: ServiceContext) => void | Promise<void>;
+    beforeRoutes?: (app: Express, context: ServiceContext) => void | Promise<void>;
+    afterRoutes?: (app: Express, context: ServiceContext) => void | Promise<void>;
     listen?: boolean;
     cron?: CronJobConfig[];
 }

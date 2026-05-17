@@ -104,12 +104,12 @@ export async function createService(config) {
     });
     // ── Error handler ────────────────────────────────────────
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    app.use((err, _req, res, _next) => {
-        logger.error(err.message);
-        res.status(err.status || 500).json({
+    app.use((error, _req, res, _next) => {
+        logger.error(error.message);
+        res.status(error.status || 500).json({
             error: true,
-            message: err.message || "Internal server error",
-            statusCode: err.status || 500,
+            message: error.message || "Internal server error",
+            statusCode: error.status || 500,
         });
     });
     // ── Cron jobs ────────────────────────────────────────────
