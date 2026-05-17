@@ -169,11 +169,11 @@ export const MinioManager = {
         prefix,
         true,
       );
-      stream.on("data", (obj: { name: string; size: number; lastModified: Date }) =>
+      stream.on("data", (object: { name: string; size: number; lastModified: Date }) =>
         items.push({
-          name: obj.name,
-          size: obj.size,
-          lastModified: obj.lastModified,
+          name: object.name,
+          size: object.size,
+          lastModified: object.lastModified,
         }),
       );
       stream.on("end", () => resolve(items));

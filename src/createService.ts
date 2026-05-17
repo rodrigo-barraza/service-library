@@ -49,8 +49,8 @@ export interface ServiceConfig {
   cors?: string | string[];
   bodyLimit?: string;
   logger?: Logger;
-  beforeRoutes?: (app: Express, ctx: ServiceContext) => void | Promise<void>;
-  afterRoutes?: (app: Express, ctx: ServiceContext) => void | Promise<void>;
+  beforeRoutes?: (app: Express, context: ServiceContext) => void | Promise<void>;
+  afterRoutes?: (app: Express, context: ServiceContext) => void | Promise<void>;
   listen?: boolean;
   cron?: CronJobConfig[];
 }
@@ -194,12 +194,12 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
 
   // ── Error handler ────────────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    logger.error(err.message);
-    res.status(err.status || 500).json({
+  app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    logger.error(error.message);
+    res.status(error.status || 500).json({
       error: true,
-      message: err.message || "Internal server error",
-      statusCode: err.status || 500,
+      message: error.message || "Internal server error",
+      statusCode: error.status || 500,
     });
   });
 

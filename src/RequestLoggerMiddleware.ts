@@ -9,7 +9,7 @@ const fmtBytes = (bytes: number) => formatFileSize(bytes, { compact: true });
 
 interface ReqLoggerLike {
   request?(...args: unknown[]): void;
-  info?(msg: string): void;
+  info?(message: string): void;
 }
 
 export interface RequestLoggerOptions {
