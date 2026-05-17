@@ -40,7 +40,7 @@
     "src"
   ],
   "scripts": {
-    "prepare": "tsc",
+    "prepare": "[ -d node_modules/typescript ] && tsc || true",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
