@@ -6,7 +6,7 @@ Eliminates ~300 lines of duplicated boilerplate per service by extracting the co
 
 ## Quick Start
 
-```js
+```ts
 import { createService } from "@rodrigo-barraza/service-library";
 import sensorRoutes from "./routes/SensorRoutes.js";
 import readingRoutes from "./routes/ReadingRoutes.js";
@@ -52,11 +52,11 @@ const { app, db } = await createService({
 
 ### `createService(config)`
 
-The main factory. See [createService.js](src/createService.js) for full `ServiceConfig` typedef.
+The main factory. See [createService.ts](src/createService.ts) for full `ServiceConfig` typedef.
 
 ### `MongoManager`
 
-```js
+```ts
 import { MongoManager, connectDB, getDB, getCollection } from "@rodrigo-barraza/service-library";
 
 const db = await connectDB("mongodb://localhost:27017/mydb");
@@ -65,7 +65,7 @@ const col = getCollection("users");
 
 ### `MinioManager`
 
-```js
+```ts
 import { MinioManager } from "@rodrigo-barraza/service-library";
 
 await MinioManager.init({ endpoint: "http://nas:9000", accessKey: "...", secretKey: "...", bucket: "uploads" });
@@ -75,7 +75,7 @@ const url = MinioManager.getPublicUrl("path/file.png");
 
 ### `AuthMiddleware`
 
-```js
+```ts
 import { createAuthMiddleware, createSecretGuard } from "@rodrigo-barraza/service-library";
 
 app.use(createSecretGuard("my-secret", { bypassPaths: ["/health"] }));
@@ -84,7 +84,7 @@ app.use(createAuthMiddleware({ defaultProject: "myapp" }));
 
 ### `HealthAggregator`
 
-```js
+```ts
 import { HealthAggregator } from "@rodrigo-barraza/service-library";
 
 const health = new HealthAggregator("my-service", 3000);
@@ -94,7 +94,7 @@ app.get("/health", health.handler());
 
 ### `GracefulShutdown`
 
-```js
+```ts
 import { registerCleanup, installShutdownHandlers } from "@rodrigo-barraza/service-library";
 
 registerCleanup(async () => { await db.close(); });
@@ -103,7 +103,7 @@ installShutdownHandlers({ logger });
 
 ### `CronScheduler`
 
-```js
+```ts
 import { CronScheduler } from "@rodrigo-barraza/service-library";
 
 const scheduler = new CronScheduler(logger);
@@ -114,7 +114,7 @@ scheduler.schedule("cleanup", 3600000, cleanupFn, { immediate: true });
 
 Each module can be imported directly:
 
-```js
+```ts
 import { MongoManager } from "@rodrigo-barraza/service-library/mongo";
 import { MinioManager } from "@rodrigo-barraza/service-library/minio";
 import { createAuthMiddleware } from "@rodrigo-barraza/service-library/auth";
@@ -127,7 +127,7 @@ import { CronScheduler } from "@rodrigo-barraza/service-library/cron";
 
 For service-specific middleware that needs to run before or after routes:
 
-```js
+```ts
 await createService({
   name: "prism-service",
   port: 7777,
