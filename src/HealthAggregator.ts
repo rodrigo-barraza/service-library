@@ -2,6 +2,7 @@
 // HealthAggregator — Unified /health endpoint
 // ─────────────────────────────────────────────────────────────
 
+import { execFileSync } from "child_process";
 import type { Request, Response } from "express";
 
 interface HealthCheck {
@@ -9,15 +10,34 @@ interface HealthCheck {
   check: () => Promise<{ status: string; [key: string]: unknown }>;
 }
 
+/**
+ * Detect the installed Python version at startup.
+ * Returns the version string (e.g. "3.12.4") or null if Python is unavailable.
+ */
+function detectPythonVersion(): string | null {
+  try {
+    const output = execFileSync("python3", ["--version"], {
+      encoding: "utf-8",
+      timeout: 3000,
+    });
+    // Output: "Python 3.12.4\n"
+    return output.trim().replace("Python ", "");
+  } catch {
+    return null;
+  }
+}
+
 export class HealthAggregator {
   #serviceName: string;
   #port: number;
   #checks: HealthCheck[] = [];
   #startTime = Date.now();
+  #pythonVersion: string | null;
 
   constructor(serviceName: string, port: number) {
     this.#serviceName = serviceName;
     this.#port = port;
+    this.#pythonVersion = detectPythonVersion();
   }
 
   /**
@@ -51,6 +71,8 @@ export class HealthAggregator {
       status: overallStatus,
       service: this.#serviceName,
       port: this.#port,
+      nodeVersion: process.version,
+      ...(this.#pythonVersion && { pythonVersion: this.#pythonVersion }),
       uptime: Math.round((Date.now() - this.#startTime) / 1000),
       checks: results,
     };
