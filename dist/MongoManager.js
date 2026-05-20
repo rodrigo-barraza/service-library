@@ -49,7 +49,6 @@ function getCollection(collectionName, dbName) {
 async function createIndexes(collectionName, indexes, dbName) {
     const col = getCollection(collectionName, dbName);
     for (const { key, options } of indexes) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await col.createIndex(key, options || {});
     }
 }

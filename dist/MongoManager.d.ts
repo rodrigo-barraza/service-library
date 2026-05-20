@@ -1,4 +1,4 @@
-import { Db, Collection } from "mongodb";
+import { Db, Collection, type IndexSpecification, type CreateIndexesOptions } from "mongodb";
 import type { LoggerLike } from "./GracefulShutdown.ts";
 export interface ConnectDBOptions {
     name?: string;
@@ -18,8 +18,8 @@ declare function getDB(name?: string): Db;
  */
 declare function getCollection(collectionName: string, dbName?: string): Collection;
 export interface IndexSpec {
-    key: Record<string, unknown>;
-    options?: Record<string, unknown>;
+    key: IndexSpecification;
+    options?: CreateIndexesOptions;
 }
 /**
  * Create indexes on a collection, idempotently.

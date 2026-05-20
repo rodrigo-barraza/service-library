@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // MinioManager — S3-compatible object storage wrapper
 // ─────────────────────────────────────────────────────────────
+// Minio Client is dynamically imported (optional peer dep) — typed as unknown
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _client = null;
 let _bucketName = null;
