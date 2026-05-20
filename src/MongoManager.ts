@@ -2,7 +2,7 @@
 // MongoManager — MongoDB connection pool + index creation + health
 // ─────────────────────────────────────────────────────────────
 
-import { MongoClient, Db, Collection } from "mongodb";
+import { MongoClient, Db, Collection, type IndexSpecification, type CreateIndexesOptions } from "mongodb";
 import type { LoggerLike } from "./GracefulShutdown.ts";
 
 const clients = new Map<string, MongoClient>();
@@ -62,8 +62,8 @@ function getCollection(collectionName: string, dbName?: string): Collection {
 }
 
 export interface IndexSpec {
-  key: Record<string, unknown>;
-  options?: Record<string, unknown>;
+  key: IndexSpecification;
+  options?: CreateIndexesOptions;
 }
 
 /**
@@ -72,8 +72,7 @@ export interface IndexSpec {
 async function createIndexes(collectionName: string, indexes: IndexSpec[], dbName?: string): Promise<void> {
   const col = getCollection(collectionName, dbName);
   for (const { key, options } of indexes) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await col.createIndex(key as any, options || {});
+    await col.createIndex(key, options || {});
   }
 }
 

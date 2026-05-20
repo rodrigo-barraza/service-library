@@ -5,6 +5,7 @@
 import type { Readable } from "stream";
 import type { LoggerLike } from "./GracefulShutdown.ts";
 
+// Minio Client is dynamically imported (optional peer dep) — typed as unknown
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _client: any = null;
 let _bucketName: string | null = null;

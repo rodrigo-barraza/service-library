@@ -193,8 +193,7 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
   });
 
   // ── Error handler ────────────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  app.use((error: Error & { status?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     logger.error(error.message);
     res.status(error.status || 500).json({
       error: true,
