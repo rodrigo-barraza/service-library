@@ -4,34 +4,34 @@
   "description": "Service Chassis — shared Express microservice bootstrap, MongoDB, MinIO, auth, health, and graceful shutdown",
   "type": "module",
   "main": "dist/index.js",
-  "types": "src/index.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./mongo": {
-      "types": "./src/MongoManager.ts",
+      "types": "./dist/MongoManager.d.ts",
       "import": "./dist/MongoManager.js"
     },
     "./minio": {
-      "types": "./src/MinioManager.ts",
+      "types": "./dist/MinioManager.d.ts",
       "import": "./dist/MinioManager.js"
     },
     "./auth": {
-      "types": "./src/AuthMiddleware.ts",
+      "types": "./dist/AuthMiddleware.d.ts",
       "import": "./dist/AuthMiddleware.js"
     },
     "./health": {
-      "types": "./src/HealthAggregator.ts",
+      "types": "./dist/HealthAggregator.d.ts",
       "import": "./dist/HealthAggregator.js"
     },
     "./shutdown": {
-      "types": "./src/GracefulShutdown.ts",
+      "types": "./dist/GracefulShutdown.d.ts",
       "import": "./dist/GracefulShutdown.js"
     },
     "./cron": {
-      "types": "./src/CronScheduler.ts",
+      "types": "./dist/CronScheduler.d.ts",
       "import": "./dist/CronScheduler.js"
     }
   },
