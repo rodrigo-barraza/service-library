@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // MinioManager — S3-compatible object storage wrapper
 // ─────────────────────────────────────────────────────────────
-// Minio Client is dynamically imported (optional peer dep) — typed as unknown
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Minio Client is dynamically imported (optional peer dep)
 let _client = null;
 let _bucketName = null;
 let _endpointUrl = null;
@@ -13,7 +12,6 @@ export const MinioManager = {
     async init({ endpoint, accessKey, secretKey, bucket, publicRead = false, logger, }) {
         const log = logger || console;
         try {
-            // @ts-ignore — minio is an optional peer dep; may or may not be installed
             const { Client } = await import("minio");
             const url = new URL(endpoint);
             _client = new Client({
@@ -90,12 +88,16 @@ export const MinioManager = {
      * Generate a presigned URL for temporary access.
      */
     async getPresignedUrl(key, expirySeconds = 3600) {
+        if (!_client || !_bucketName)
+            throw new Error("MinIO client not initialized");
         return _client.presignedGetObject(_bucketName, key, expirySeconds);
     },
     /**
      * Upload a file buffer to MinIO.
      */
     async upload(key, buffer, contentType) {
+        if (!_client || !_bucketName)
+            throw new Error("MinIO client not initialized");
         await _client.putObject(_bucketName, key, buffer, buffer.length, {
             "Content-Type": contentType,
         });
@@ -104,24 +106,32 @@ export const MinioManager = {
      * Get a readable stream for an object.
      */
     async get(key) {
+        if (!_client || !_bucketName)
+            throw new Error("MinIO client not initialized");
         return _client.getObject(_bucketName, key);
     },
     /**
      * Remove an object from the bucket.
      */
     async remove(key) {
+        if (!_client || !_bucketName)
+            throw new Error("MinIO client not initialized");
         await _client.removeObject(_bucketName, key);
     },
     /**
      * Get object metadata (stat).
      */
     async stat(key) {
+        if (!_client || !_bucketName)
+            throw new Error("MinIO client not initialized");
         return _client.statObject(_bucketName, key);
     },
     /**
      * List all objects in the bucket with an optional prefix.
      */
     async listObjects(prefix = "") {
+        if (!_client || !_bucketName)
+            throw new Error("MinIO client not initialized");
         return new Promise((resolve, reject) => {
             const items = [];
             const stream = _client.listObjectsV2(_bucketName, prefix, true);
