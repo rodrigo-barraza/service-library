@@ -14,9 +14,9 @@ async function connectDB(uri, options = {}) {
     await client.connect();
     const dbName = options.dbName || client.db().databaseName;
     const name = options.name || dbName;
-    const db = client.db(dbName);
+    const database = client.db(dbName);
     clients.set(name, client);
-    databases.set(name, db);
+    databases.set(name, database);
     if (!defaultName)
         defaultName = name;
     if (logger.success) {
@@ -25,17 +25,17 @@ async function connectDB(uri, options = {}) {
     else {
         console.log(`📡 MongoDB connected: ${name}`);
     }
-    return db;
+    return database;
 }
 /**
  * Get the database instance for a named connection.
  */
 function getDB(name) {
     const key = name || defaultName;
-    const db = key ? databases.get(key) : undefined;
-    if (!db)
+    const database = key ? databases.get(key) : undefined;
+    if (!database)
         throw new Error(`Database not connected${key ? `: ${key}` : ""} — call connectDB() first`);
-    return db;
+    return database;
 }
 /**
  * Get a collection from a named connection.
@@ -80,9 +80,9 @@ async function disconnectDB(name) {
  */
 async function healthCheck(name) {
     try {
-        const db = getDB(name);
-        await db.command({ ping: 1 });
-        return { status: "ok", dbName: db.databaseName };
+        const database = getDB(name);
+        await database.command({ ping: 1 });
+        return { status: "ok", dbName: database.databaseName };
     }
     catch (error) {
         return { status: "error", error: error.message };

@@ -56,9 +56,9 @@ export async function createService(config) {
     // ── Request logger ───────────────────────────────────────
     app.use(createRequestLoggerMiddleware(logger));
     // ── MongoDB ──────────────────────────────────────────────
-    let db = null;
+    let database = null;
     if (config.mongo) {
-        db = await connectDB(config.mongo.uri, {
+        database = await connectDB(config.mongo.uri, {
             dbName: config.mongo.dbName,
             logger,
         });
@@ -76,7 +76,7 @@ export async function createService(config) {
         health.register("minio", () => MinioManager.healthCheck());
     }
     // ── Pre-route hook ───────────────────────────────────────
-    const serviceContext = { app, db, logger, health, scheduler };
+    const serviceContext = { app, db: database, logger, health, scheduler };
     if (config.beforeRoutes) {
         await config.beforeRoutes(app, serviceContext);
     }
