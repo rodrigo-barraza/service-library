@@ -10,9 +10,9 @@ export function createAuthMiddleware(options = {}) {
     const defaultProject = options.defaultProject || "default";
     const defaultUsername = options.defaultUsername || "anonymous";
     return function authMiddleware(req, _res, next) {
-        const r = req;
+        const typedRequest = req;
         // Project: query param → body → header → default
-        r.project =
+        typedRequest.project =
             req.query?.project ||
                 req.body?.project ||
                 req.headers["x-project"] ||
@@ -20,14 +20,14 @@ export function createAuthMiddleware(options = {}) {
         // Client IP: x-forwarded-for → req.ip, normalize IPv4-mapped IPv6
         const forwarded = req.headers["x-forwarded-for"];
         const rawIp = (typeof forwarded === "string" ? forwarded.split(",")[0]?.trim() : undefined) || req.ip;
-        r.clientIp = rawIp?.replace(/^::ffff:/, "") || rawIp || "";
+        typedRequest.clientIp = rawIp?.replace(/^::ffff:/, "") || rawIp || "";
         // Username from header (never fall back to IP)
-        r.username = req.headers["x-username"] || defaultUsername;
+        typedRequest.username = req.headers["x-username"] || defaultUsername;
         // Optional workspace scoping
-        r.workspaceId = req.headers["x-workspace-id"] || null;
-        r.workspaceRoot = req.headers["x-workspace-root"] || null;
+        typedRequest.workspaceId = req.headers["x-workspace-id"] || null;
+        typedRequest.workspaceRoot = req.headers["x-workspace-root"] || null;
         // Agent identifier
-        r.agent = req.headers["x-agent"] || null;
+        typedRequest.agent = req.headers["x-agent"] || null;
         next();
     };
 }
