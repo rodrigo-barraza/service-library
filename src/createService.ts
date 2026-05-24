@@ -135,9 +135,9 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
   app.use(createRequestLoggerMiddleware(logger));
 
   // ── MongoDB ──────────────────────────────────────────────
-  let db: Db | null = null;
+  let database: Db | null = null;
   if (config.mongo) {
-    db = await connectDB(config.mongo.uri, {
+    database = await connectDB(config.mongo.uri, {
       dbName: config.mongo.dbName,
       logger,
     });
@@ -159,7 +159,7 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
   }
 
   // ── Pre-route hook ───────────────────────────────────────
-  const serviceContext: ServiceContext = { app, db, logger, health, scheduler };
+  const serviceContext: ServiceContext = { app, db: database, logger, health, scheduler };
   if (config.beforeRoutes) {
     await config.beforeRoutes(app, serviceContext);
   }

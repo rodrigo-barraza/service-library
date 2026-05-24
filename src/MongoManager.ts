@@ -25,10 +25,10 @@ async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<D
 
   const dbName = options.dbName || client.db().databaseName;
   const name = options.name || dbName;
-  const db = client.db(dbName);
+  const database = client.db(dbName);
 
   clients.set(name, client);
-  databases.set(name, db);
+  databases.set(name, database);
 
   if (!defaultName) defaultName = name;
 
@@ -38,7 +38,7 @@ async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<D
     console.log(`📡 MongoDB connected: ${name}`);
   }
 
-  return db;
+  return database;
 }
 
 /**
@@ -46,12 +46,12 @@ async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<D
  */
 function getDB(name?: string): Db {
   const key = name || defaultName;
-  const db = key ? databases.get(key) : undefined;
-  if (!db)
+  const database = key ? databases.get(key) : undefined;
+  if (!database)
     throw new Error(
       `Database not connected${key ? `: ${key}` : ""} — call connectDB() first`,
     );
-  return db;
+  return database;
 }
 
 /**
@@ -103,9 +103,9 @@ async function disconnectDB(name?: string): Promise<void> {
  */
 async function healthCheck(name?: string): Promise<{ status: string; dbName?: string; error?: string }> {
   try {
-    const db = getDB(name);
-    await db.command({ ping: 1 });
-    return { status: "ok", dbName: db.databaseName };
+    const database = getDB(name);
+    await database.command({ ping: 1 });
+    return { status: "ok", dbName: database.databaseName };
   } catch (error) {
     return { status: "error", error: (error as Error).message };
   }
