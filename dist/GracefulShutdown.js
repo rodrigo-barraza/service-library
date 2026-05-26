@@ -26,7 +26,7 @@ export async function runCleanupFunctions(logger) {
     }
     if (log.info)
         log.info(`Running ${count} cleanup function(s)…`);
-    const results = await Promise.allSettled(Array.from(cleanupFunctions).map((fn) => fn()));
+    const results = await Promise.allSettled(Array.from(cleanupFunctions).map((cleanupFunction) => cleanupFunction()));
     let failures = 0;
     for (const result of results) {
         if (result.status === "rejected") {

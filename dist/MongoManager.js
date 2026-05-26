@@ -47,9 +47,9 @@ function getCollection(collectionName, dbName) {
  * Create indexes on a collection, idempotently.
  */
 async function createIndexes(collectionName, indexes, dbName) {
-    const col = getCollection(collectionName, dbName);
+    const collection = getCollection(collectionName, dbName);
     for (const { key, options } of indexes) {
-        await col.createIndex(key, options || {});
+        await collection.createIndex(key, options || {});
     }
 }
 /**
