@@ -180,14 +180,14 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
   app.get("/health", health.handler());
 
   // ── Root endpoint ────────────────────────────────────────
-  const routePaths = (config.routes || []).map((r) => r.path);
+  const routePaths = (config.routes || []).map((route) => route.path);
   app.get("/", (_req, res) => {
     res.json({
       service: name,
       version,
       description: description || `${name} API`,
       endpoints: Object.fromEntries(
-        routePaths.map((p) => [p.replace(/^\//, ""), p]),
+        routePaths.map((pathItem) => [pathItem.replace(/^\//, ""), pathItem]),
       ),
     });
   });

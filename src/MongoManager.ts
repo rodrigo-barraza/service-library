@@ -70,9 +70,9 @@ export interface IndexSpec {
  * Create indexes on a collection, idempotently.
  */
 async function createIndexes(collectionName: string, indexes: IndexSpec[], dbName?: string): Promise<void> {
-  const col = getCollection(collectionName, dbName);
+  const collection = getCollection(collectionName, dbName);
   for (const { key, options } of indexes) {
-    await col.createIndex(key, options || {});
+    await collection.createIndex(key, options || {});
   }
 }
 

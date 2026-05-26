@@ -41,7 +41,7 @@ export async function runCleanupFunctions(logger?: LoggerLike): Promise<void> {
   if (log.info) log.info(`Running ${count} cleanup function(s)…`);
 
   const results = await Promise.allSettled(
-    Array.from(cleanupFunctions).map((fn) => fn()),
+    Array.from(cleanupFunctions).map((cleanupFunction) => cleanupFunction()),
   );
 
   let failures = 0;
