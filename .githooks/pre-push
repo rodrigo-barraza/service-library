@@ -1,0 +1,56 @@
+#!/bin/bash
+# ============================================================
+# Git Pre-Push Hook (Shared)
+# Automatically builds service-library, commits dist/,
+# and pushes recursively if stale dist files are detected.
+# ============================================================
+
+# Exit immediately if a command exits with a non-zero status,
+# treat unset variables as an error, and prevent masking errors in pipelines.
+set -euo pipefail
+
+# Avoid infinite recursion when the nested push triggers this hook
+if [ "${GIT_PRE_PUSH_RECURSION_GUARD:-}" = "true" ]; then
+  exit 0
+fi
+
+# Define descriptive English variable names (no abbreviations)
+declare -r DISTRIBUTION_DIRECTORY="dist/"
+
+echo -e "\033[1;33m[pre-push] Rebuilding ${DISTRIBUTION_DIRECTORY} to ensure it is in sync...\033[0m"
+
+# Execute the compilation build process
+if ! npm run build; then
+  echo -e "\033[1;31m[pre-push] ERROR: Build compilation failed. Aborting push.\033[0m" >&2
+  exit 1
+fi
+
+# Check if the distribution directory has any modified or untracked files
+declare -i isDistributionDirectoryModified=0
+if ! git diff --quiet -- "$DISTRIBUTION_DIRECTORY" || \
+   [ -n "$(git ls-files --others --exclude-standard "$DISTRIBUTION_DIRECTORY" 2>/dev/null)" ]; then
+  isDistributionDirectoryModified=1
+fi
+
+if [ "$isDistributionDirectoryModified" -eq 1 ]; then
+  echo -e "\033[1;33m[pre-push] Stale ${DISTRIBUTION_DIRECTORY} detected! Creating auto-build commit...\033[0m"
+  
+  # Stage and commit the updated dist directory
+  git add "$DISTRIBUTION_DIRECTORY"
+  git commit -m "build: auto-rebuild dist/ before push" --no-verify
+  
+  # Retrieve the current active branch name
+  declare -r currentBranchName=$(git rev-parse --abbrev-ref HEAD)
+  
+  echo -e "\033[1;32m[pre-push] Executing recursive push with updated ${DISTRIBUTION_DIRECTORY}...\033[0m"
+  
+  # Trigger a nested push with the recursion guard activated
+  export GIT_PRE_PUSH_RECURSION_GUARD="true"
+  git push origin "$currentBranchName" --no-verify
+  
+  # Exit with 1 to abort the original push (since the nested push has already executed successfully)
+  exit 1
+fi
+
+echo -e "\033[1;32m[pre-push] ${DISTRIBUTION_DIRECTORY} is in sync. Proceeding with push.\033[0m"
+exit 0

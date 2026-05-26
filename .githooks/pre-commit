@@ -1,0 +1,41 @@
+#!/bin/bash
+# ============================================================
+# Git Pre-Commit Hook (Shared)
+# Automatically builds service-library and stages dist/
+# to guarantee atomic, self-contained commits.
+# ============================================================
+
+# Exit immediately if a command exits with a non-zero status,
+# treat unset variables as an error, and prevent masking errors in pipelines.
+set -euo pipefail
+
+# Define descriptive English variable names (no abbreviations)
+declare -r TARGET_DIRECTORY_SRC="src/"
+declare -r CONFIGURATION_FILE="package.json"
+declare -r DISTRIBUTION_DIRECTORY="dist/"
+
+# Check if there are any staged changes in the source directory or configuration file.
+# If no files are staged, exit early to optimize commit performance.
+if git diff --cached --quiet -- "$TARGET_DIRECTORY_SRC" "$CONFIGURATION_FILE"; then
+  exit 0
+fi
+
+echo -e "\033[1;33m[pre-commit] Staged changes detected in ${TARGET_DIRECTORY_SRC} or ${CONFIGURATION_FILE}. Rebuilding ${DISTRIBUTION_DIRECTORY}...\033[0m"
+
+# Execute the compilation build process
+if ! npm run build; then
+  echo -e "\033[1;31m[pre-commit] ERROR: Build compilation failed. Aborting commit.\033[0m" >&2
+  exit 1
+fi
+
+# Assert if there are modifications in the distribution directory
+declare -i isDistributionDirectoryModified=0
+if ! git diff --quiet -- "$DISTRIBUTION_DIRECTORY"; then
+  isDistributionDirectoryModified=1
+fi
+
+# Auto-stage any changes inside the distribution directory if they differ
+if [ "$isDistributionDirectoryModified" -eq 1 ]; then
+  echo -e "\033[1;32m[pre-commit] Staging updated ${DISTRIBUTION_DIRECTORY} files...\033[0m"
+  git add "$DISTRIBUTION_DIRECTORY"
+fi

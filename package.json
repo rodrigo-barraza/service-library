@@ -40,7 +40,7 @@
     "src"
   ],
   "scripts": {
-    "prepare": "[ -d node_modules/typescript ] && tsc || true",
+    "prepare": "[ -d node_modules/typescript ] && tsc || true && git config core.hooksPath .githooks || true",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
