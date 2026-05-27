@@ -20,15 +20,15 @@ export function createRequestLoggerMiddleware(logger, options = {}) {
             const path = req.originalUrl || req.url;
             const status = res.statusCode;
             const time = elapsed >= 1000 ? `${(elapsed / 1000).toFixed(2)}s` : `${Math.round(elapsed)}ms`;
-            const inB = parseInt(req.headers["content-length"] || "0", 10);
-            const outB = parseInt(res.getHeader("content-length") || "0", 10);
-            const sizeTag = `(in: ${formatBytes(inB)}, out: ${formatBytes(outB)}, total: ${formatBytes(inB + outB)})`;
+            const incomingBytes = parseInt(req.headers["content-length"] || "0", 10);
+            const outgoingBytes = parseInt(res.getHeader("content-length") || "0", 10);
+            const sizeTag = `(in: ${formatBytes(incomingBytes)}, out: ${formatBytes(outgoingBytes)}, total: ${formatBytes(incomingBytes + outgoingBytes)})`;
             const typedRequest = req;
             if (identityAware && logger.request && logger.request.length >= 4) {
                 const project = typedRequest.project || req.headers["x-project"] || null;
                 const username = typedRequest.username || req.headers["x-username"] || null;
-                const fwd = req.headers["x-forwarded-for"];
-                const clientIp = typedRequest.clientIp || (typeof fwd === "string" ? fwd.split(",")[0]?.trim() : undefined) || req.ip;
+                const forwardedHeader = req.headers["x-forwarded-for"];
+                const clientIp = typedRequest.clientIp || (typeof forwardedHeader === "string" ? forwardedHeader.split(",")[0]?.trim() : undefined) || req.ip;
                 logger.request(project, username, clientIp, `${method} ${path} ${status} — ${time} ${sizeTag}`);
             }
             else if (logger.request) {

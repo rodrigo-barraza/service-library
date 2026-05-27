@@ -7,7 +7,7 @@ import { formatFileSize } from "@rodrigo-barraza/utilities-library";
 
 const formatBytes = (bytes: number) => formatFileSize(bytes, { compact: true });
 
-interface ReqLoggerLike {
+interface RequestLoggerLike {
   request?(...args: unknown[]): void;
   info?(message: string): void;
 }
@@ -18,7 +18,7 @@ export interface RequestLoggerOptions {
   identityAware?: boolean;
 }
 
-export function createRequestLoggerMiddleware(logger: ReqLoggerLike, options: RequestLoggerOptions = {}) {
+export function createRequestLoggerMiddleware(logger: RequestLoggerLike, options: RequestLoggerOptions = {}) {
   const skipSSE = options.skipSSE !== false;
   const skipAudio = options.skipAudio !== false;
   const identityAware = options.identityAware !== false;
@@ -37,17 +37,17 @@ export function createRequestLoggerMiddleware(logger: ReqLoggerLike, options: Re
       const status = res.statusCode;
       const time = elapsed >= 1000 ? `${(elapsed / 1000).toFixed(2)}s` : `${Math.round(elapsed)}ms`;
 
-      const inB = parseInt((req.headers["content-length"] as string) || "0", 10);
-      const outB = parseInt((res.getHeader("content-length") as string) || "0", 10);
-      const sizeTag = `(in: ${formatBytes(inB)}, out: ${formatBytes(outB)}, total: ${formatBytes(inB + outB)})`;
+      const incomingBytes = parseInt((req.headers["content-length"] as string) || "0", 10);
+      const outgoingBytes = parseInt((res.getHeader("content-length") as string) || "0", 10);
+      const sizeTag = `(in: ${formatBytes(incomingBytes)}, out: ${formatBytes(outgoingBytes)}, total: ${formatBytes(incomingBytes + outgoingBytes)})`;
 
       const typedRequest = req as Request & { project?: string; username?: string; clientIp?: string };
 
       if (identityAware && logger.request && logger.request.length >= 4) {
         const project = typedRequest.project || (req.headers["x-project"] as string) || null;
         const username = typedRequest.username || (req.headers["x-username"] as string) || null;
-        const fwd = req.headers["x-forwarded-for"];
-        const clientIp = typedRequest.clientIp || (typeof fwd === "string" ? fwd.split(",")[0]?.trim() : undefined) || req.ip;
+        const forwardedHeader = req.headers["x-forwarded-for"];
+        const clientIp = typedRequest.clientIp || (typeof forwardedHeader === "string" ? forwardedHeader.split(",")[0]?.trim() : undefined) || req.ip;
         logger.request(project, username, clientIp, `${method} ${path} ${status} — ${time} ${sizeTag}`);
       } else if (logger.request) {
         logger.request(method, path, status, time, sizeTag);
