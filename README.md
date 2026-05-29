@@ -82,6 +82,18 @@ app.use(createSecretGuard("my-secret", { bypassPaths: ["/health"] }));
 app.use(createAuthMiddleware({ defaultProject: "myapp" }));
 ```
 
+### `RequestLoggerMiddleware`
+
+```ts
+import { createRequestLoggerMiddleware } from "@rodrigo-barraza/service-library";
+
+app.use(createRequestLoggerMiddleware(logger, {
+  skipSSE: true,         // Avoid logging event stream updates
+  skipAudio: true,       // Avoid logging audio content payloads
+  identityAware: true,   // Include project/user context in logs
+}));
+```
+
 ### `HealthAggregator`
 
 ```ts
