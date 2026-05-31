@@ -13,6 +13,9 @@ async function connectDB(uri, options = {}) {
     const client = new MongoClient(uri);
     await client.connect();
     const dbName = options.dbName || client.db().databaseName;
+    if (dbName === "test") {
+        throw new Error("MongoManager: Connecting to the 'test' database is forbidden. Please specify a dbName explicitly in ConnectDBOptions or the connection URI.");
+    }
     const name = options.name || dbName;
     const database = client.db(dbName);
     clients.set(name, client);
