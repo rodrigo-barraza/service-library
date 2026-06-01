@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // CronScheduler — Named interval-based job scheduling
 // ─────────────────────────────────────────────────────────────
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 export class CronScheduler {
     #jobs = new Map();
     #logger;
@@ -31,9 +32,9 @@ export class CronScheduler {
                 job.runCount++;
             }
             catch (error) {
-                job.lastError = error.message;
+                job.lastError = errorMessage(error);
                 if (this.#logger.error) {
-                    this.#logger.error(`[Cron] ${name} failed: ${error.message}`);
+                    this.#logger.error(`[Cron] ${name} failed: ${errorMessage(error)}`);
                 }
             }
         };

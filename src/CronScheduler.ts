@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import type { LoggerLike } from "./GracefulShutdown.ts";
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
 interface Job {
   name: string;
@@ -50,10 +51,10 @@ export class CronScheduler {
         job.lastRun = new Date();
         job.lastError = null;
         job.runCount++;
-      } catch (error) {
-        job.lastError = (error as Error).message;
+      } catch (error: unknown) {
+        job.lastError = errorMessage(error);
         if (this.#logger.error) {
-          this.#logger.error(`[Cron] ${name} failed: ${(error as Error).message}`);
+          this.#logger.error(`[Cron] ${name} failed: ${errorMessage(error)}`);
         }
       }
     };

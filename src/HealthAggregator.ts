@@ -4,6 +4,7 @@
 
 import { execFileSync } from "child_process";
 import type { Request, Response } from "express";
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
 interface HealthCheck {
   name: string;
@@ -61,8 +62,8 @@ export class HealthAggregator {
         if ((results[name] as { status: string }).status !== "ok") {
           overallStatus = "degraded";
         }
-      } catch (error) {
-        results[name] = { status: "error", error: (error as Error).message };
+      } catch (error: unknown) {
+        results[name] = { status: "error", error: errorMessage(error) };
         overallStatus = "degraded";
       }
     }

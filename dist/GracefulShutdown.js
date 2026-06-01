@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // GracefulShutdown — Signal handlers + cleanup registry
 // ─────────────────────────────────────────────────────────────
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 const cleanupFunctions = new Set();
 let isRunning = false;
 /**
@@ -32,7 +33,7 @@ export async function runCleanupFunctions(logger) {
         if (result.status === "rejected") {
             failures++;
             if (log.error)
-                log.error(`Cleanup failed: ${result.reason?.message || result.reason}`);
+                log.error(`Cleanup failed: ${errorMessage(result.reason)}`);
         }
     }
     if (failures > 0 && log.warn) {
@@ -67,7 +68,7 @@ export function installShutdownHandlers(options = {}) {
         }
         catch (error) {
             if (logger.error)
-                logger.error(`Fatal cleanup error: ${error.message}`);
+                logger.error(`Fatal cleanup error: ${errorMessage(error)}`);
         }
         clearTimeout(hardTimeout);
         process.exit(0);

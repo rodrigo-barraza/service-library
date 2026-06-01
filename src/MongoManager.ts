@@ -4,6 +4,7 @@
 
 import { MongoClient, Db, Collection, type IndexSpecification, type CreateIndexesOptions } from "mongodb";
 import type { LoggerLike } from "./GracefulShutdown.ts";
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
 const clients = new Map<string, MongoClient>();
 const databases = new Map<string, Db>();
@@ -111,8 +112,8 @@ async function healthCheck(name?: string): Promise<{ status: string; dbName?: st
     const database = getDB(name);
     await database.command({ ping: 1 });
     return { status: "ok", dbName: database.databaseName };
-  } catch (error) {
-    return { status: "error", error: (error as Error).message };
+  } catch (error: unknown) {
+    return { status: "error", error: errorMessage(error) };
   }
 }
 

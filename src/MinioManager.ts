@@ -4,6 +4,7 @@
 
 import type { Readable } from "stream";
 import type { LoggerLike } from "./GracefulShutdown.ts";
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
 import type { Client as MinioClient } from "minio";
 
@@ -89,8 +90,8 @@ export const MinioManager = {
           `✅ MinIO connected: ${endpoint} (bucket: ${bucket})`,
         );
       }
-    } catch (error) {
-      if (log.error) log.error(`MinIO connection failed: ${(error as Error).message}`);
+    } catch (error: unknown) {
+      if (log.error) log.error(`MinIO connection failed: ${errorMessage(error)}`);
       _client = null;
       _bucketName = null;
       _endpointUrl = null;
@@ -197,8 +198,8 @@ export const MinioManager = {
     try {
       await _client.bucketExists(_bucketName!);
       return { status: "ok", bucket: _bucketName! };
-    } catch (error) {
-      return { status: "error", error: (error as Error).message };
+    } catch (error: unknown) {
+      return { status: "error", error: errorMessage(error) };
     }
   },
 

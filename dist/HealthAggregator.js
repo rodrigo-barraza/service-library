@@ -2,6 +2,7 @@
 // HealthAggregator — Unified /health endpoint
 // ─────────────────────────────────────────────────────────────
 import { execFileSync } from "child_process";
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 /**
  * Detect the installed Python version at startup.
  * Returns the version string (e.g. "3.12.4") or null if Python is unavailable.
@@ -51,7 +52,7 @@ export class HealthAggregator {
                 }
             }
             catch (error) {
-                results[name] = { status: "error", error: error.message };
+                results[name] = { status: "error", error: errorMessage(error) };
                 overallStatus = "degraded";
             }
         }

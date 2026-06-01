@@ -2,6 +2,7 @@
 // MongoManager — MongoDB connection pool + index creation + health
 // ─────────────────────────────────────────────────────────────
 import { MongoClient } from "mongodb";
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 const clients = new Map();
 const databases = new Map();
 let defaultName = null;
@@ -88,7 +89,7 @@ async function healthCheck(name) {
         return { status: "ok", dbName: database.databaseName };
     }
     catch (error) {
-        return { status: "error", error: error.message };
+        return { status: "error", error: errorMessage(error) };
     }
 }
 /**

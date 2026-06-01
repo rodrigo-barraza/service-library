@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────
 
 type CleanupFn = () => Promise<void> | void;
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
 const cleanupFunctions = new Set<CleanupFn>();
 let isRunning = false;
@@ -50,7 +51,7 @@ export async function runCleanupFunctions(logger?: LoggerLike): Promise<void> {
       failures++;
       if (log.error)
         log.error(
-          `Cleanup failed: ${(result.reason as Error)?.message || result.reason}`,
+          `Cleanup failed: ${errorMessage(result.reason)}`,
         );
     }
   }
@@ -94,9 +95,9 @@ export function installShutdownHandlers(options: ShutdownOptions = {}): void {
 
     try {
       await runCleanupFunctions(logger);
-    } catch (error) {
+    } catch (error: unknown) {
       if (logger.error)
-        logger.error(`Fatal cleanup error: ${(error as Error).message}`);
+        logger.error(`Fatal cleanup error: ${errorMessage(error)}`);
     }
 
     clearTimeout(hardTimeout);

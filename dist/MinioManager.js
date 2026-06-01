@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // MinioManager — S3-compatible object storage wrapper
 // ─────────────────────────────────────────────────────────────
+import { errorMessage } from "@rodrigo-barraza/utilities-library";
 // Minio Client is dynamically imported (optional peer dep)
 let _client = null;
 let _bucketName = null;
@@ -55,7 +56,7 @@ export const MinioManager = {
         }
         catch (error) {
             if (log.error)
-                log.error(`MinIO connection failed: ${error.message}`);
+                log.error(`MinIO connection failed: ${errorMessage(error)}`);
             _client = null;
             _bucketName = null;
             _endpointUrl = null;
@@ -156,7 +157,7 @@ export const MinioManager = {
             return { status: "ok", bucket: _bucketName };
         }
         catch (error) {
-            return { status: "error", error: error.message };
+            return { status: "error", error: errorMessage(error) };
         }
     },
     /**
