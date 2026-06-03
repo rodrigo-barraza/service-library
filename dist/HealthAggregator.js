@@ -34,8 +34,8 @@ export class HealthAggregator {
     /**
      * Register a named health check.
      */
-    register(name, checkFn) {
-        this.#checks.push({ name, check: checkFn });
+    register(name, checkFunction) {
+        this.#checks.push({ name, check: checkFunction });
         return this;
     }
     /**

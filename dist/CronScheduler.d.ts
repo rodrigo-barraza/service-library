@@ -8,7 +8,7 @@ export declare class CronScheduler {
     /**
      * Register and start a recurring job.
      */
-    schedule(name: string, intervalMs: number, fn: () => Promise<void> | void, options?: ScheduleOptions): this;
+    schedule(name: string, intervalMs: number, taskFunction: () => Promise<void> | void, options?: ScheduleOptions): this;
     /**
      * Cancel a scheduled job.
      */
@@ -20,6 +20,12 @@ export declare class CronScheduler {
     /**
      * Get health status for all jobs.
      */
-    getHealth(): Record<string, unknown>;
+    getHealth(): Record<string, CronJobHealth>;
+}
+export interface CronJobHealth {
+    intervalMs: number;
+    lastRun: Date | null;
+    lastError: string | null;
+    runCount: number;
 }
 //# sourceMappingURL=CronScheduler.d.ts.map

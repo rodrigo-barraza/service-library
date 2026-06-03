@@ -6,9 +6,24 @@ import { execFileSync } from "child_process";
 import type { Request, Response } from "express";
 import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
+export interface HealthCheckResult {
+  status: string;
+  [key: string]: unknown;
+}
+
 interface HealthCheck {
   name: string;
-  check: () => Promise<{ status: string; [key: string]: unknown }>;
+  check: () => Promise<HealthCheckResult>;
+}
+
+export interface HealthReport {
+  status: string;
+  service: string;
+  port: number;
+  nodeVersion: string;
+  pythonVersion?: string;
+  uptime: number;
+  checks: Record<string, HealthCheckResult>;
 }
 
 /**
@@ -44,22 +59,22 @@ export class HealthAggregator {
   /**
    * Register a named health check.
    */
-  register(name: string, checkFn: () => Promise<{ status: string; [key: string]: unknown }>): this {
-    this.#checks.push({ name, check: checkFn });
+  register(name: string, checkFunction: () => Promise<HealthCheckResult>): this {
+    this.#checks.push({ name, check: checkFunction });
     return this;
   }
 
   /**
    * Run all checks and return aggregated health.
    */
-  async getHealth(): Promise<Record<string, unknown>> {
-    const results: Record<string, unknown> = {};
+  async getHealth(): Promise<HealthReport> {
+    const results: Record<string, HealthCheckResult> = {};
     let overallStatus = "ok";
 
     for (const { name, check } of this.#checks) {
       try {
         results[name] = await check();
-        if ((results[name] as { status: string }).status !== "ok") {
+        if (results[name].status !== "ok") {
           overallStatus = "degraded";
         }
       } catch (error: unknown) {

@@ -8,9 +8,9 @@ let isRunning = false;
  * Register a cleanup function to run during graceful shutdown.
  * Returns an unregister function.
  */
-export function registerCleanup(cleanupFn) {
-    cleanupFunctions.add(cleanupFn);
-    return () => cleanupFunctions.delete(cleanupFn);
+export function registerCleanup(cleanupFunction) {
+    cleanupFunctions.add(cleanupFunction);
+    return () => cleanupFunctions.delete(cleanupFunction);
 }
 /**
  * Run all registered cleanup functions in parallel.

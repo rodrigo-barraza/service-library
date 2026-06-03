@@ -40,7 +40,7 @@ export const MinioManager = {
     publicRead = false,
     logger,
   }: MinioInitConfig): Promise<void> {
-    const log = logger || console;
+    const log: LoggerLike = logger || console;
 
     try {
       const { Client } = await import("minio");
@@ -81,8 +81,8 @@ export const MinioManager = {
         await _client.setBucketPolicy(bucket, publicPolicy);
       }
 
-      if ((log as LoggerLike).success) {
-        (log as LoggerLike).success!(
+      if (log.success) {
+        log.success(
           `MinIO connected: ${endpoint} (bucket: ${bucket})`,
         );
       } else {
@@ -159,9 +159,9 @@ export const MinioManager = {
   /**
    * Get object metadata (stat).
    */
-  async stat(key: string): Promise<Record<string, unknown>> {
+  async stat(key: string) {
     if (!_client || !_bucketName) throw new Error("MinIO client not initialized");
-    return _client.statObject(_bucketName, key) as unknown as Record<string, unknown>;
+    return _client.statObject(_bucketName, key);
   },
 
   /**

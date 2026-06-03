@@ -11,14 +11,14 @@ export class CronScheduler {
     /**
      * Register and start a recurring job.
      */
-    schedule(name, intervalMs, fn, options = {}) {
+    schedule(name, intervalMs, taskFunction, options = {}) {
         if (this.#jobs.has(name)) {
             this.cancel(name);
         }
         const job = {
             name,
             intervalMs,
-            fn,
+            taskFunction,
             timer: null,
             lastRun: null,
             lastError: null,
@@ -26,7 +26,7 @@ export class CronScheduler {
         };
         const execute = async () => {
             try {
-                await fn();
+                await taskFunction();
                 job.lastRun = new Date();
                 job.lastError = null;
                 job.runCount++;

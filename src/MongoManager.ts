@@ -20,7 +20,7 @@ export interface ConnectDBOptions {
  * Connect to MongoDB and return the database instance.
  */
 async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<Db> {
-  const logger = options.logger || console;
+  const logger: LoggerLike = options.logger || console;
   const client = new MongoClient(uri);
   await client.connect();
 
@@ -38,8 +38,8 @@ async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<D
 
   if (!defaultName) defaultName = name;
 
-  if ((logger as LoggerLike).success) {
-    (logger as LoggerLike).success!(`MongoDB connected: ${name}`);
+  if (logger.success) {
+    logger.success(`MongoDB connected: ${name}`);
   } else {
     console.log(`📡 MongoDB connected: ${name}`);
   }

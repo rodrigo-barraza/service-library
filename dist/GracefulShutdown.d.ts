@@ -1,9 +1,9 @@
-type CleanupFn = () => Promise<void> | void;
+type CleanupFunction = () => Promise<void> | void;
 /**
  * Register a cleanup function to run during graceful shutdown.
  * Returns an unregister function.
  */
-export declare function registerCleanup(cleanupFn: CleanupFn): () => void;
+export declare function registerCleanup(cleanupFunction: CleanupFunction): () => void;
 export interface LoggerLike {
     info?(message: string): void;
     warn?(message: string): void;

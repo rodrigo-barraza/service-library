@@ -2,19 +2,19 @@
 // GracefulShutdown — Signal handlers + cleanup registry
 // ─────────────────────────────────────────────────────────────
 
-type CleanupFn = () => Promise<void> | void;
+type CleanupFunction = () => Promise<void> | void;
 import { errorMessage } from "@rodrigo-barraza/utilities-library";
 
-const cleanupFunctions = new Set<CleanupFn>();
+const cleanupFunctions = new Set<CleanupFunction>();
 let isRunning = false;
 
 /**
  * Register a cleanup function to run during graceful shutdown.
  * Returns an unregister function.
  */
-export function registerCleanup(cleanupFn: CleanupFn): () => void {
-  cleanupFunctions.add(cleanupFn);
-  return () => cleanupFunctions.delete(cleanupFn);
+export function registerCleanup(cleanupFunction: CleanupFunction): () => void {
+  cleanupFunctions.add(cleanupFunction);
+  return () => cleanupFunctions.delete(cleanupFunction);
 }
 
 export interface LoggerLike {
@@ -31,7 +31,7 @@ export interface LoggerLike {
 export async function runCleanupFunctions(logger?: LoggerLike): Promise<void> {
   if (isRunning) return;
   isRunning = true;
-  const log = logger || console;
+  const log: LoggerLike = logger || console;
   const count = cleanupFunctions.size;
 
   if (count === 0) {
@@ -58,8 +58,8 @@ export async function runCleanupFunctions(logger?: LoggerLike): Promise<void> {
 
   if (failures > 0 && log.warn) {
     log.warn(`${failures}/${count} cleanup function(s) failed`);
-  } else if ((log as LoggerLike).success) {
-    (log as LoggerLike).success!(`All ${count} cleanup function(s) completed`);
+  } else if (log.success) {
+    log.success(`All ${count} cleanup function(s) completed`);
   }
 
   isRunning = false;

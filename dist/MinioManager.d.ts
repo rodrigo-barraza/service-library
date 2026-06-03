@@ -49,7 +49,7 @@ export declare const MinioManager: {
     /**
      * Get object metadata (stat).
      */
-    stat(key: string): Promise<Record<string, unknown>>;
+    stat(key: string): Promise<import("minio").BucketItemStat>;
     /**
      * List all objects in the bucket with an optional prefix.
      */

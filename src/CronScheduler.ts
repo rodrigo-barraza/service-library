@@ -8,7 +8,7 @@ import { errorMessage } from "@rodrigo-barraza/utilities-library";
 interface Job {
   name: string;
   intervalMs: number;
-  fn: () => Promise<void> | void;
+  taskFunction: () => Promise<void> | void;
   timer: ReturnType<typeof setInterval> | null;
   lastRun: Date | null;
   lastError: string | null;
@@ -30,7 +30,7 @@ export class CronScheduler {
   /**
    * Register and start a recurring job.
    */
-  schedule(name: string, intervalMs: number, fn: () => Promise<void> | void, options: ScheduleOptions = {}): this {
+  schedule(name: string, intervalMs: number, taskFunction: () => Promise<void> | void, options: ScheduleOptions = {}): this {
     if (this.#jobs.has(name)) {
       this.cancel(name);
     }
@@ -38,7 +38,7 @@ export class CronScheduler {
     const job: Job = {
       name,
       intervalMs,
-      fn,
+      taskFunction,
       timer: null,
       lastRun: null,
       lastError: null,
@@ -47,7 +47,7 @@ export class CronScheduler {
 
     const execute = async () => {
       try {
-        await fn();
+        await taskFunction();
         job.lastRun = new Date();
         job.lastError = null;
         job.runCount++;
@@ -100,8 +100,8 @@ export class CronScheduler {
   /**
    * Get health status for all jobs.
    */
-  getHealth(): Record<string, unknown> {
-    const jobs: Record<string, unknown> = {};
+  getHealth(): Record<string, CronJobHealth> {
+    const jobs: Record<string, CronJobHealth> = {};
     for (const [name, job] of this.#jobs) {
       jobs[name] = {
         intervalMs: job.intervalMs,
@@ -112,4 +112,11 @@ export class CronScheduler {
     }
     return jobs;
   }
+}
+
+export interface CronJobHealth {
+  intervalMs: number;
+  lastRun: Date | null;
+  lastError: string | null;
+  runCount: number;
 }
