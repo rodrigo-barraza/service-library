@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────
 import express from "express";
 import { createLogger } from "@rodrigo-barraza/utilities-library/node";
-import { connectDB, disconnectDB, MongoManager } from "./MongoManager.js";
+import { connectDatabase, disconnectDatabase, MongoManager } from "./MongoManager.js";
 import { MinioManager } from "./MinioManager.js";
 import { createAuthMiddleware, createSecretGuard } from "./AuthMiddleware.js";
 import { createRequestLoggerMiddleware } from "./RequestLoggerMiddleware.js";
@@ -58,7 +58,7 @@ export async function createService(config) {
     // ── MongoDB ──────────────────────────────────────────────
     let database = null;
     if (config.mongo) {
-        database = await connectDB(config.mongo.uri, {
+        database = await connectDatabase(config.mongo.uri, {
             dbName: config.mongo.dbName,
             logger,
         });
@@ -68,7 +68,7 @@ export async function createService(config) {
             }
         }
         health.register("mongodb", () => MongoManager.healthCheck());
-        registerCleanup(() => disconnectDB());
+        registerCleanup(() => disconnectDatabase());
     }
     // ── MinIO ────────────────────────────────────────────────
     if (config.minio) {

@@ -2,7 +2,7 @@
 // @rodrigo-barraza/service-library — Node.js service entry point
 // ─────────────────────────────────────────────────────────────
 export { createService } from "./createService.js";
-export { MongoManager, connectDB, getDB, getCollection, disconnectDB, setDBForTesting, createIndexes } from "./MongoManager.js";
+export { MongoManager, connectDatabase, getDatabase, getCollection, disconnectDatabase, setDatabaseForTesting, createIndexes } from "./MongoManager.js";
 export { MinioManager } from "./MinioManager.js";
 export { createAuthMiddleware, createSecretGuard } from "./AuthMiddleware.js";
 export { createRequestLoggerMiddleware } from "./RequestLoggerMiddleware.js";

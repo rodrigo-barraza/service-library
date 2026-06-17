@@ -8,11 +8,11 @@ export interface ConnectDBOptions {
 /**
  * Connect to MongoDB and return the database instance.
  */
-declare function connectDB(uri: string, options?: ConnectDBOptions): Promise<Db>;
+declare function connectDatabase(uri: string, options?: ConnectDBOptions): Promise<Db>;
 /**
  * Get the database instance for a named connection.
  */
-declare function getDB(name?: string): Db;
+declare function getDatabase(name?: string): Db;
 /**
  * Get a collection from a named connection.
  */
@@ -28,7 +28,7 @@ declare function createIndexes(collectionName: string, indexes: IndexSpec[], dbN
 /**
  * Close a named connection (or all if no name given).
  */
-declare function disconnectDB(name?: string): Promise<void>;
+declare function disconnectDatabase(name?: string): Promise<void>;
 /**
  * Get health status for a named connection (or default).
  */
@@ -40,15 +40,15 @@ declare function healthCheck(name?: string): Promise<{
 /**
  * Set a mock database instance for testing.
  */
-declare function setDBForTesting(mockDb: Db, name?: string): void;
+declare function setDatabaseForTesting(mockDb: Db, name?: string): void;
 export declare const MongoManager: {
-    connect: typeof connectDB;
-    getDB: typeof getDB;
+    connect: typeof connectDatabase;
+    getDatabase: typeof getDatabase;
     getCollection: typeof getCollection;
     createIndexes: typeof createIndexes;
-    disconnect: typeof disconnectDB;
+    disconnect: typeof disconnectDatabase;
     healthCheck: typeof healthCheck;
-    setDBForTesting: typeof setDBForTesting;
+    setDatabaseForTesting: typeof setDatabaseForTesting;
 };
-export { connectDB, getDB, getCollection, createIndexes, disconnectDB, setDBForTesting, };
+export { connectDatabase, getDatabase, getCollection, createIndexes, disconnectDatabase, setDatabaseForTesting, };
 //# sourceMappingURL=MongoManager.d.ts.map

@@ -19,7 +19,7 @@ export interface ConnectDBOptions {
 /**
  * Connect to MongoDB and return the database instance.
  */
-async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<Db> {
+async function connectDatabase(uri: string, options: ConnectDBOptions = {}): Promise<Db> {
   const logger: LoggerLike = options.logger || console;
   const client = new MongoClient(uri);
   await client.connect();
@@ -50,12 +50,12 @@ async function connectDB(uri: string, options: ConnectDBOptions = {}): Promise<D
 /**
  * Get the database instance for a named connection.
  */
-function getDB(name?: string): Db {
+function getDatabase(name?: string): Db {
   const key = name || defaultName;
   const database = key ? databases.get(key) : undefined;
   if (!database)
     throw new Error(
-      `Database not connected${key ? `: ${key}` : ""} — call connectDB() first`,
+      `Database not connected${key ? `: ${key}` : ""} — call connectDatabase() first`,
     );
   return database;
 }
@@ -64,7 +64,7 @@ function getDB(name?: string): Db {
  * Get a collection from a named connection.
  */
 function getCollection(collectionName: string, dbName?: string): Collection {
-  return getDB(dbName).collection(collectionName);
+  return getDatabase(dbName).collection(collectionName);
 }
 
 export interface IndexSpec {
@@ -85,7 +85,7 @@ async function createIndexes(collectionName: string, indexes: IndexSpec[], dbNam
 /**
  * Close a named connection (or all if no name given).
  */
-async function disconnectDB(name?: string): Promise<void> {
+async function disconnectDatabase(name?: string): Promise<void> {
   if (name) {
     const client = clients.get(name);
     if (client) {
@@ -109,7 +109,7 @@ async function disconnectDB(name?: string): Promise<void> {
  */
 async function healthCheck(name?: string): Promise<{ status: string; dbName?: string; error?: string }> {
   try {
-    const database = getDB(name);
+    const database = getDatabase(name);
     await database.command({ ping: 1 });
     return { status: "ok", dbName: database.databaseName };
   } catch (error: unknown) {
@@ -120,7 +120,7 @@ async function healthCheck(name?: string): Promise<{ status: string; dbName?: st
 /**
  * Set a mock database instance for testing.
  */
-function setDBForTesting(mockDb: Db, name = "test"): void {
+function setDatabaseForTesting(mockDb: Db, name = "test"): void {
   databases.set(name, mockDb);
   if (!defaultName) defaultName = name;
 }
@@ -128,20 +128,20 @@ function setDBForTesting(mockDb: Db, name = "test"): void {
 // ── Namespaced export ────────────────────────────────────────
 
 export const MongoManager = {
-  connect: connectDB,
-  getDB,
+  connect: connectDatabase,
+  getDatabase,
   getCollection,
   createIndexes,
-  disconnect: disconnectDB,
+  disconnect: disconnectDatabase,
   healthCheck,
-  setDBForTesting,
+  setDatabaseForTesting,
 };
 
 export {
-  connectDB,
-  getDB,
+  connectDatabase,
+  getDatabase,
   getCollection,
   createIndexes,
-  disconnectDB,
-  setDBForTesting,
+  disconnectDatabase,
+  setDatabaseForTesting,
 };

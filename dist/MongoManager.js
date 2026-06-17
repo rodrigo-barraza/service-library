@@ -9,7 +9,7 @@ let defaultName = null;
 /**
  * Connect to MongoDB and return the database instance.
  */
-async function connectDB(uri, options = {}) {
+async function connectDatabase(uri, options = {}) {
     const logger = options.logger || console;
     const client = new MongoClient(uri);
     await client.connect();
@@ -34,18 +34,18 @@ async function connectDB(uri, options = {}) {
 /**
  * Get the database instance for a named connection.
  */
-function getDB(name) {
+function getDatabase(name) {
     const key = name || defaultName;
     const database = key ? databases.get(key) : undefined;
     if (!database)
-        throw new Error(`Database not connected${key ? `: ${key}` : ""} — call connectDB() first`);
+        throw new Error(`Database not connected${key ? `: ${key}` : ""} — call connectDatabase() first`);
     return database;
 }
 /**
  * Get a collection from a named connection.
  */
 function getCollection(collectionName, dbName) {
-    return getDB(dbName).collection(collectionName);
+    return getDatabase(dbName).collection(collectionName);
 }
 /**
  * Create indexes on a collection, idempotently.
@@ -59,7 +59,7 @@ async function createIndexes(collectionName, indexes, dbName) {
 /**
  * Close a named connection (or all if no name given).
  */
-async function disconnectDB(name) {
+async function disconnectDatabase(name) {
     if (name) {
         const client = clients.get(name);
         if (client) {
@@ -84,7 +84,7 @@ async function disconnectDB(name) {
  */
 async function healthCheck(name) {
     try {
-        const database = getDB(name);
+        const database = getDatabase(name);
         await database.command({ ping: 1 });
         return { status: "ok", dbName: database.databaseName };
     }
@@ -95,20 +95,20 @@ async function healthCheck(name) {
 /**
  * Set a mock database instance for testing.
  */
-function setDBForTesting(mockDb, name = "test") {
+function setDatabaseForTesting(mockDb, name = "test") {
     databases.set(name, mockDb);
     if (!defaultName)
         defaultName = name;
 }
 // ── Namespaced export ────────────────────────────────────────
 export const MongoManager = {
-    connect: connectDB,
-    getDB,
+    connect: connectDatabase,
+    getDatabase,
     getCollection,
     createIndexes,
-    disconnect: disconnectDB,
+    disconnect: disconnectDatabase,
     healthCheck,
-    setDBForTesting,
+    setDatabaseForTesting,
 };
-export { connectDB, getDB, getCollection, createIndexes, disconnectDB, setDBForTesting, };
+export { connectDatabase, getDatabase, getCollection, createIndexes, disconnectDatabase, setDatabaseForTesting, };
 //# sourceMappingURL=MongoManager.js.map

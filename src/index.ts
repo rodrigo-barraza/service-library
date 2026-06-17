@@ -5,7 +5,7 @@
 export { createService } from "./createService.ts";
 export type { ServiceConfig, ServiceContext, RouteMount, CronJobConfig } from "./createService.ts";
 
-export { MongoManager, connectDB, getDB, getCollection, disconnectDB, setDBForTesting, createIndexes } from "./MongoManager.ts";
+export { MongoManager, connectDatabase, getDatabase, getCollection, disconnectDatabase, setDatabaseForTesting, createIndexes } from "./MongoManager.ts";
 export type { ConnectDBOptions, IndexSpec } from "./MongoManager.ts";
 
 export { MinioManager } from "./MinioManager.ts";

@@ -6,7 +6,7 @@ import express, { type Router, type Express } from "express";
 import type { Db } from "mongodb";
 import { createLogger, type Logger } from "@rodrigo-barraza/utilities-library/node";
 
-import { connectDB, disconnectDB, MongoManager } from "./MongoManager.ts";
+import { connectDatabase, disconnectDatabase, MongoManager } from "./MongoManager.ts";
 import { MinioManager, type MinioInitConfig } from "./MinioManager.ts";
 import { createAuthMiddleware, createSecretGuard } from "./AuthMiddleware.ts";
 import { createRequestLoggerMiddleware } from "./RequestLoggerMiddleware.ts";
@@ -137,7 +137,7 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
   // ── MongoDB ──────────────────────────────────────────────
   let database: Db | null = null;
   if (config.mongo) {
-    database = await connectDB(config.mongo.uri, {
+    database = await connectDatabase(config.mongo.uri, {
       dbName: config.mongo.dbName,
       logger,
     });
@@ -149,7 +149,7 @@ export async function createService(config: ServiceConfig): Promise<ServiceConte
     }
 
     health.register("mongodb", () => MongoManager.healthCheck());
-    registerCleanup(() => disconnectDB());
+    registerCleanup(() => disconnectDatabase());
   }
 
   // ── MinIO ────────────────────────────────────────────────
