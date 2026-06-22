@@ -92,5 +92,6 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "packageManager": "pnpm@11.8.0"
 }

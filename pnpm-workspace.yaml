@@ -1,0 +1,6 @@
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  canvas: true
+  unrs-resolver: true
+  sharp: true

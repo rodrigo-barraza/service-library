@@ -3,3 +3,6 @@ node_modules/
 *.log
 *.tgz
 .DS_Store
+
+# Migrated to pnpm
+package-lock.json
