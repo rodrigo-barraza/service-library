@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@rodrigo-barraza/utilities-library':
-        specifier: file:../utilities-library
-        version: file:../utilities-library
+        specifier: github:rodrigo-barraza/utilities-library
+        version: https://codeload.github.com/rodrigo-barraza/utilities-library/tar.gz/8ebb9ca5dbf6ae7eccd329c9fcfdded30b8b31d6
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.4
@@ -135,8 +135,9 @@ packages:
   '@oxc-project/types@0.133.0':
     resolution: {integrity: sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA==}
 
-  '@rodrigo-barraza/utilities-library@file:../utilities-library':
-    resolution: {directory: ../utilities-library, type: directory}
+  '@rodrigo-barraza/utilities-library@https://codeload.github.com/rodrigo-barraza/utilities-library/tar.gz/8ebb9ca5dbf6ae7eccd329c9fcfdded30b8b31d6':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/rodrigo-barraza/utilities-library/tar.gz/8ebb9ca5dbf6ae7eccd329c9fcfdded30b8b31d6}
+    version: 0.2.0
 
   '@rolldown/binding-android-arm64@1.0.3':
     resolution: {integrity: sha512-454rs7jHngixp/NMxd5srYD57OnzSlZ/eFTETjORQHLwJG1lRtmNOJcBerZlfu4GjKqeq8aCCIQrMdHyhI51Hw==}
@@ -913,8 +914,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  nanoid@3.3.14:
-    resolution: {integrity: sha512-U9kYi5bpVMEI31yC8iw4bJJp0avcHXA0W8/wNfLfnvJYzihQo2ZRPYPvpAAd570HAcCBjCTN7vnr+v4StKl1IQ==}
+  nanoid@3.3.15:
+    resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -1404,7 +1405,7 @@ snapshots:
 
   '@oxc-project/types@0.133.0': {}
 
-  '@rodrigo-barraza/utilities-library@file:../utilities-library':
+  '@rodrigo-barraza/utilities-library@https://codeload.github.com/rodrigo-barraza/utilities-library/tar.gz/8ebb9ca5dbf6ae7eccd329c9fcfdded30b8b31d6':
     dependencies:
       mongodb: 7.3.0
       zod: 4.4.3
@@ -2157,7 +2158,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  nanoid@3.3.14: {}
+  nanoid@3.3.15: {}
 
   natural-compare@1.4.0: {}
 
@@ -2210,7 +2211,7 @@ snapshots:
 
   postcss@8.5.15:
     dependencies:
-      nanoid: 3.3.14
+      nanoid: 3.3.15
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
